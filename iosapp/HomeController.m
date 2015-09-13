@@ -112,11 +112,11 @@
 #pragma mark 设置默认显示图片
 -(void)setDefaultImage{
     //加载默认图片
-    NSURL *lefturl=[NSURL URLWithString:_imageKeyName[[NSString stringWithFormat:@"%d",_currentImageIndex-1]]];
+    NSURL *lefturl=[NSURL URLWithString:_imageKeyPath[[NSString stringWithFormat:@"%d",_currentImageIndex-1]]];
     
-    NSURL *centralurl=[NSURL URLWithString:_imageKeyName[@"0"]];
+    NSURL *centralurl=[NSURL URLWithString:_imageKeyPath[@"0"]];
     
-    NSURL *righturl=[NSURL URLWithString:_imageKeyName[@"1"]];
+    NSURL *righturl=[NSURL URLWithString:_imageKeyPath[@"1"]];
     
     _leftImageView.image= [UIImage imageWithData:[NSData dataWithContentsOfURL:lefturl]];
     _centerImageView.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:centralurl]];
@@ -166,8 +166,9 @@
     //设置分页
     _pageControl.currentPage=_currentImageIndex;
     //设置描述
-    NSString *imageName=[NSString stringWithFormat:@"%i.jpg",_currentImageIndex];
-    _label.text=_imageDataDic[imageName];
+    //NSString *imageName=[NSString stringWithFormat:@"%i.jpg",_currentImageIndex];
+    
+    _label.text=_imageKeyName[[NSString stringWithFormat:@"%d",_currentImageIndex]];
 }
 
 #pragma mark 重新加载图片
@@ -180,13 +181,28 @@
         _currentImageIndex=(_currentImageIndex+_imageCount-1)%_imageCount;
     }
     //UIImageView *centerImageView=(UIImageView *)[_scrollView viewWithTag:2];
-    _centerImageView.image=[UIImage imageNamed:[NSString stringWithFormat:@"%i.jpg",_currentImageIndex]];
+    
+    //NSURL *righturl=[NSURL URLWithString:_imageKeyPath[@"1"]];
+    
+    _centerImageView.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:
+                                                   [NSURL URLWithString:
+                                                    _imageKeyPath[[NSString stringWithFormat:@"%d",_currentImageIndex]]
+                                                    ]
+                                                   ]];
     
     //重新设置左右图片
     leftImageIndex=(_currentImageIndex+_imageCount-1)%_imageCount;
     rightImageIndex=(_currentImageIndex+1)%_imageCount;
-    _leftImageView.image=[UIImage imageNamed:[NSString stringWithFormat:@"%i.jpg",leftImageIndex]];
-    _rightImageView.image=[UIImage imageNamed:[NSString stringWithFormat:@"%i.jpg",rightImageIndex]];
+    _leftImageView.image=[UIImage imageWithData:
+                            [NSData dataWithContentsOfURL:
+                                [NSURL URLWithString:                                                 _imageKeyPath[                                                                 [NSString stringWithFormat:@"%d",  leftImageIndex]]]
+                                    ]];
+    
+    _rightImageView.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:
+                                                  [NSURL URLWithString:
+                                                   _imageKeyPath[[NSString stringWithFormat:@"%d",rightImageIndex]]
+                                                   ]
+                                                  ]];
 }
 
 
