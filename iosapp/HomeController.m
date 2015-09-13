@@ -54,9 +54,30 @@
     //读取程序包路径中的资源文件
     NSString *path=[[NSBundle mainBundle] pathForResource:@"imageInfo" ofType:@"plist"];
     _imageDataDic=[NSMutableDictionary dictionaryWithContentsOfFile:path];
-    _imageKeyName=[NSMutableDictionary dictionaryWithObjectsAndKeys:@"",@"", nil];
-    _imageKeyPath=nil;
-    _imageCount=(int)_imageDataDic.count;
+    _imageKeyName=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+                   @"图片1",@"0",
+                   @"图片2",@"1",
+                   @"图片3",@"2",
+                   @"图片4",@"3",
+                   @"图片5",@"4",
+                   @"图片6",@"5",
+                   @"图片7",@"6",
+                   @"图片8",@"7",
+                   @"图片9",@"8",
+                   nil];
+
+    _imageKeyPath=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+                   @"http://video.marykayintouch.com.cn/seminar/10001232.jpg",@"0",
+                   @"http://video.marykayintouch.com.cn/seminar/10000232.jpg",@"1",
+                   @"http://video.marykayintouch.com.cn/seminar/10015232.jpg",@"2",
+                   @"http://video.marykayintouch.com.cn/seminar/10024232.jpg",@"3",
+                   @"http://video.marykayintouch.com.cn/seminar/10022232.jpg",@"4",
+                   @"http://video.marykayintouch.com.cn/seminar/10020232.jpg",@"5",
+                   @"http://video.marykayintouch.com.cn/seminar/10019232.jpg",@"6",
+                   @"http://video.marykayintouch.com.cn/seminar/10018232.jpg",@"7",
+                   @"http://video.marykayintouch.com.cn/seminar/10016232.jpg",@"8",
+                   nil];
+    _imageCount=(int)_imageKeyName.count;
 }
 
 #pragma mark 添加控件
@@ -91,13 +112,13 @@
 #pragma mark 设置默认显示图片
 -(void)setDefaultImage{
     //加载默认图片
-    NSURL *lefturl=[NSURL URLWithString:@"http://video.marykayintouch.com.cn/seminar/10020232.jpg"];
+    NSURL *lefturl=[NSURL URLWithString:_imageKeyName[[NSString stringWithFormat:@"%d",_currentImageIndex-1]]];
     
-    NSURL *centralurl=[NSURL URLWithString:@"http://video.marykayintouch.com.cn/seminar/10015232.jpg"];
+    NSURL *centralurl=[NSURL URLWithString:_imageKeyName[@"0"]];
     
-    NSURL *righturl=[NSURL URLWithString:@"http://video.marykayintouch.com.cn/seminar/10024232.jpg"];
+    NSURL *righturl=[NSURL URLWithString:_imageKeyName[@"1"]];
     
-    _leftImageView.image= [UIImage imageWithData:[NSData dataWithContentsOfURL:lefturl]];//[UIImage imageNamed:[NSString stringWithFormat:@"%i.jpg",_imageCount-1]];
+    _leftImageView.image= [UIImage imageWithData:[NSData dataWithContentsOfURL:lefturl]];
     _centerImageView.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:centralurl]];
     _rightImageView.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:righturl]];
     
@@ -105,8 +126,8 @@
     
     //设置当前页
     _pageControl.currentPage=_currentImageIndex;
-    NSString *imageName=[NSString stringWithFormat:@"%i.jpg",_currentImageIndex];
-    _label.text=_imageDataDic[imageName];
+    //NSString *imageName=[NSString stringWithFormat:@"%i.jpg",_currentImageIndex];
+    _label.text=_imageKeyName[[NSString stringWithFormat:@"%d",_currentImageIndex]];
 }
 
 #pragma mark 添加分页控件
