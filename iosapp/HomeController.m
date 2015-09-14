@@ -7,6 +7,7 @@
 //
 
 #import "HomeController.h"
+#import "UIImageView+WebCache.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 568
@@ -29,7 +30,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     NSLog(@"研讨会主页加载");
- 
+    
     self.view.backgroundColor=[UIColor grayColor];
     
     // 研讨会视频轮播
@@ -65,7 +66,7 @@
                    @"图片8",@"7",
                    @"图片9",@"8",
                    nil];
-
+    
     _imageKeyPath=[NSMutableDictionary dictionaryWithObjectsAndKeys:
                    @"http://video.marykayintouch.com.cn/seminar/10001232.jpg",@"0",
                    @"http://video.marykayintouch.com.cn/seminar/10000232.jpg",@"1",
@@ -118,9 +119,15 @@
     
     NSURL *righturl=[NSURL URLWithString:_imageKeyPath[@"1"]];
     
-    _leftImageView.image= [UIImage imageWithData:[NSData dataWithContentsOfURL:lefturl]];
-    _centerImageView.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:centralurl]];
-    _rightImageView.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:righturl]];
+    
+    [_leftImageView sd_setImageWithURL:lefturl completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    }];
+    
+    [_centerImageView sd_setImageWithURL:centralurl completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    }];
+    
+    [_leftImageView sd_setImageWithURL:righturl completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    }];
     
     _currentImageIndex=0;
     
@@ -180,29 +187,44 @@
     }else if(offset.x<SCREEN_WIDTH){ //向左滑动
         _currentImageIndex=(_currentImageIndex+_imageCount-1)%_imageCount;
     }
-    //UIImageView *centerImageView=(UIImageView *)[_scrollView viewWithTag:2];
     
-    //NSURL *righturl=[NSURL URLWithString:_imageKeyPath[@"1"]];
-    
-    _centerImageView.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:
-                                                   [NSURL URLWithString:
-                                                    _imageKeyPath[[NSString stringWithFormat:@"%d",_currentImageIndex]]
-                                                    ]
-                                                   ]];
+    [_centerImageView sd_setImageWithURL:[NSURL URLWithString:
+                                          _imageKeyPath[[NSString stringWithFormat:@"%d",_currentImageIndex]]
+                                          ] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    }];
     
     //重新设置左右图片
     leftImageIndex=(_currentImageIndex+_imageCount-1)%_imageCount;
     rightImageIndex=(_currentImageIndex+1)%_imageCount;
-    _leftImageView.image=[UIImage imageWithData:
-                            [NSData dataWithContentsOfURL:
-                                [NSURL URLWithString:                                                 _imageKeyPath[                                                                 [NSString stringWithFormat:@"%d",  leftImageIndex]]]
-                                    ]];
     
-    _rightImageView.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:
-                                                  [NSURL URLWithString:
-                                                   _imageKeyPath[[NSString stringWithFormat:@"%d",rightImageIndex]]
-                                                   ]
-                                                  ]];
+    
+    [_leftImageView sd_setImageWithURL:[NSURL URLWithString:
+                                        _imageKeyPath[[NSString stringWithFormat:@"%d",leftImageIndex]]
+                                        ] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    }];
+    
+    [_rightImageView sd_setImageWithURL:[NSURL URLWithString:
+                                         _imageKeyPath[[NSString stringWithFormat:@"%d",rightImageIndex]]
+                                         ] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    }];
+}
+
+#pragma 缓存图片
+-(UIImage *)getImageByKey:(int) key{
+    
+    NSString *imgKey=[NSString stringWithFormat:@"%d",  key];
+    
+    NSURL * url=[NSURL URLWithString: _imageKeyPath[imgKey]];
+    
+    SDImageCache *sd=[[SDWebImageManager sharedManager] imageCache];
+    
+    if (![[SDWebImageManager sharedManager] diskImageExistsForURL:url])
+    {
+        UIImage *img=[UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
+        [sd storeImage:img forKey:imgKey toDisk:YES];
+    }
+    
+    return [sd imageFromDiskCacheForKey:imgKey];
 }
 
 
@@ -213,7 +235,7 @@
 }
 
 - (void) viewDidAppear:(BOOL)animated{
-   
+    
     //[super viewDidAppear:<#animated#>];
     //app尺寸，去掉状态栏
     CGRect r = [ UIScreen mainScreen ].applicationFrame;
@@ -234,8 +256,8 @@
 }
 
 - (void) viewDidDisappear:(BOOL)animated{
-
-     NSLog(@"研讨会主页DisAppear");
+    
+    NSLog(@"研讨会主页DisAppear");
 }
 
 - (void)didReceiveMemoryWarning {
